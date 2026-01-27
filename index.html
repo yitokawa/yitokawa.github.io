@@ -88,8 +88,8 @@
                 </div>
 
                 <!-- Footer / Warning Text (Now inside scroll area) -->
-                <!-- pb-[calc(2rem+env(safe-area-inset-bottom))] ensures enough space at the bottom for home indicator -->
-                <div class="py-6 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center">
+                <!-- Removed extra bottom padding calc() logic. Just standard padding now. -->
+                <div class="py-6 text-center">
                     <div class="flex items-center justify-center gap-2 text-slate-400 text-[10px]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
                         <span>交通事情により遅れることがあります</span>
@@ -97,7 +97,6 @@
                 </div>
             </div>
 
-            <!-- Fixed footer removed -->
         </div>
 
     </div>

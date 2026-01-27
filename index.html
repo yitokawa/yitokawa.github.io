@@ -2,19 +2,21 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport: viewport-fit=cover allows content to go under the notch -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- iOS Standalone Mode Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- black-translucent allows the body background color to show through the status bar -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Shuttle">
 
-    <!-- Theme Color Meta Tag (Dynamic Notch Color) -->
+    <!-- Theme Color Meta Tag (Matches the notch color in browser UI) -->
     <meta id="meta-theme-color" name="theme-color" content="#2563eb">
 
-    <!-- App Icon: Changed back to .png -->
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" href="icon.png" type="image/png">
+    <!-- App Icon: Linked to 'icon.jpg' as requested -->
+    <link rel="apple-touch-icon" href="icon.jpg">
+    <link rel="icon" href="icon.jpg" type="image/jpeg">
     
     <title>Smart Shuttle Schedule</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,20 +32,23 @@
             transition-duration: 300ms;
         }
 
+        /* Crucial: Prevent white background bounce on scroll */
         body { overscroll-behavior-y: none; }
         #schedule-list { overscroll-behavior-y: contain; }
     </style>
 </head>
-<body class="h-[100dvh] w-full bg-slate-100 font-sans text-slate-800 overflow-hidden">
+<!-- Body: Background color is set dynamically via JS. Defaulting to blue-600 here just in case. -->
+<body id="app-body" class="h-[100dvh] w-full font-sans text-slate-800 overflow-hidden transition-colors-fast" style="background-color: #2563eb;">
 
     <!-- App Container -->
-    <div class="w-full h-full max-w-md mx-auto bg-white shadow-2xl flex flex-col relative overflow-hidden">
+    <!-- Removed 'bg-white' from here so the body color (Blue/Pink) shows at the very top (notch) -->
+    <div class="w-full h-full max-w-md mx-auto flex flex-col relative overflow-hidden">
         
         <!-- Header Section -->
         <div id="header-bg" class="bg-blue-600 px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] text-white text-center relative transition-colors-fast shrink-0 z-10">
-            <!-- Shirotan Bus Icon (Top Right) - Updated to icon.png -->
+            <!-- Shirotan Bus Icon (Top Right) -->
             <div class="absolute top-[calc(1rem+env(safe-area-inset-top))] right-4">
-                <img src="icon.png" alt="Bus Logo" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white">
+                <img src="icon.jpg" alt="Bus Logo" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white">
             </div>
 
             <h1 class="text-xl font-bold mb-1 pt-2">シャトルバス時刻表</h1>
@@ -54,43 +59,45 @@
             </div>
         </div>
 
-        <!-- Direction Tabs -->
-        <div class="flex bg-slate-100 p-1 shrink-0 z-10">
-            <button id="btn-to-station" onclick="setDirection('toStation')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
-                辻堂駅 行き
-            </button>
-            <button id="btn-to-mansion" onclick="setDirection('toMansion')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
-                マンション 行き 
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </button>
-        </div>
-
-        <!-- Next Bus Card -->
-        <div class="p-6 pb-2 shrink-0 z-0">
-            <div id="next-bus-card" class="border rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-colors-fast shadow-sm">
-                 <span id="next-bus-label" class="text-xs font-bold uppercase tracking-wider mb-1">次の出発</span>
-                 <div id="next-bus-content">
-                     <!-- Populated by JS -->
-                 </div>
+        <!-- Main Content Wrapper (White/Slate Background) -->
+        <!-- This wrapper ensures the bottom part of the app stays white/slate, while the top body remains blue/pink -->
+        <div class="flex-1 flex flex-col bg-slate-100 overflow-hidden rounded-t-xl -mt-2 z-10">
+            
+            <!-- Direction Tabs -->
+            <div class="flex bg-slate-100 p-1 pt-3 shrink-0">
+                <button id="btn-to-station" onclick="setDirection('toStation')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
+                    辻堂駅 行き
+                </button>
+                <button id="btn-to-mansion" onclick="setDirection('toMansion')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+                    マンション 行き 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </button>
             </div>
-        </div>
 
-        <!-- Full Schedule List -->
-        <div class="flex-1 px-6 pt-2 pb-0 overflow-y-auto custom-scrollbar relative">
-             <!-- Fade effect at top of list -->
-             <div class="sticky top-0 h-4 bg-gradient-to-b from-white to-transparent -mx-2 pointer-events-none z-10"></div>
-             
-             <div id="schedule-list" class="space-y-2 pb-4">
-                <!-- Populated by JS -->
+            <!-- Next Bus Card -->
+            <div class="p-6 pb-2 shrink-0">
+                <div id="next-bus-card" class="border rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-colors-fast shadow-sm">
+                     <span id="next-bus-label" class="text-xs font-bold uppercase tracking-wider mb-1">次の出発</span>
+                     <div id="next-bus-content">
+                         <!-- Populated by JS -->
+                     </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Footer -->
-        <div class="bg-slate-50 border-t border-slate-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center shrink-0 z-10">
-            <div class="flex items-center justify-center gap-2 text-slate-400 text-xs">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                <span>交通事情により遅れることがあります</span>
+            <!-- Full Schedule List -->
+            <div class="flex-1 px-6 pt-2 pb-0 overflow-y-auto custom-scrollbar relative bg-slate-100">
+                 <div id="schedule-list" class="space-y-2 pb-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-slate-50 border-t border-slate-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center shrink-0">
+                <div class="flex items-center justify-center gap-2 text-slate-400 text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                    <span>交通事情により遅れることがあります</span>
+                </div>
             </div>
         </div>
 
@@ -240,15 +247,18 @@
             const theme = themes[direction];
             const currentSchedule = direction === 'toStation' ? scheduleToStation : scheduleToMansion;
             
-            // 0. Update Meta Theme Color (Notch/Status Bar)
+            // 0. Update BODY Background Color (This fixes the notch area!)
+            document.body.style.backgroundColor = theme.hex;
+
+            // 1. Update Meta Theme Color (For browser UI)
             document.getElementById('meta-theme-color').setAttribute('content', theme.hex);
 
-            // 1. Update Header Theme
+            // 2. Update Header Theme
             const header = document.getElementById('header-bg');
             header.className = `${theme.main} px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] text-white text-center relative transition-colors-fast shrink-0 z-10`;
             document.getElementById('current-time-display').textContent = formatTime(currentTime);
 
-            // 2. Update Buttons
+            // 3. Update Buttons
             const btnStation = document.getElementById('btn-to-station');
             const btnMansion = document.getElementById('btn-to-mansion');
             
@@ -260,7 +270,7 @@
                 btnMansion.className = `flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${theme.buttonActive}`;
             }
 
-            // 3. Update Next Bus Card
+            // 4. Update Next Bus Card
             nextBus = calculateNextBus(currentTime, currentSchedule);
             const card = document.getElementById('next-bus-card');
             const label = document.getElementById('next-bus-label');
@@ -284,7 +294,7 @@
                 content.innerHTML = `<div class="text-slate-400 font-bold py-4">本日の運行は終了しました</div>`;
             }
 
-            // 4. Update List
+            // 5. Update List
             const listContainer = document.getElementById('schedule-list');
             
             if (fullRender) {
@@ -321,7 +331,7 @@
                 });
             }
 
-            // 5. Update List Highlights
+            // 6. Update List Highlights
             Object.keys(currentSchedule).forEach(h => {
                 const hour = parseInt(h);
                 if (currentSchedule[h].length === 0 && (hour < 10 || hour > 20)) return;

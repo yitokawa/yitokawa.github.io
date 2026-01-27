@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Shuttle">
 
-    <!-- Theme Color Meta Tag -->
-    <meta id="meta-theme-color" name="theme-color" content="#2563eb">
+    <!-- Theme Color Meta Tag Removed to allow Safari's native translucency -->
+    <!-- <meta id="meta-theme-color" name="theme-color" content="#2563eb"> -->
 
     <!-- App Icon: icon.png -->
     <link rel="apple-touch-icon" href="icon.png">
@@ -83,8 +83,7 @@
             <!-- Full Schedule List (Scrollable) -->
             <div class="flex-1 px-6 pt-2 overflow-y-auto custom-scrollbar relative bg-slate-100">
                  <!-- Schedule Items -->
-                 <!-- Removed extra bottom padding as requested -->
-                 <div id="schedule-list" class="space-y-2">
+                 <div id="schedule-list" class="space-y-2 pb-10">
                     <!-- Populated by JS -->
                 </div>
             </div>
@@ -241,9 +240,8 @@
             // Top half = Theme Color, Bottom half = Slate-100 (#f1f5f9)
             document.body.style.background = `linear-gradient(to bottom, ${theme.hex} 0%, ${theme.hex} 50%, #f1f5f9 50%, #f1f5f9 100%)`;
 
-            // 1. Update Meta Theme Color (For browser UI)
-            document.getElementById('meta-theme-color').setAttribute('content', theme.hex);
-
+            // 1. Theme Color Meta Tag removed, so no need to update it here.
+            
             // 2. Update Header Theme
             const header = document.getElementById('header-bg');
             header.className = `${theme.main} px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] text-white text-center relative transition-colors-fast shrink-0 z-10`;

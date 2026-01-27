@@ -100,6 +100,22 @@
             -webkit-font-smoothing: antialiased;
         }
         
+        /* iOS PWA safe area background fill */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: env(safe-area-inset-top, 0px);
+            z-index: 9999;
+            transition: background 0.4s ease;
+            pointer-events: none;
+        }
+        
+        body.theme-station::before { background: var(--station-primary); }
+        body.theme-mansion::before { background: var(--mansion-primary); }
+        
         .app-container {
             max-width: 430px;
             margin: 0 auto;
@@ -112,14 +128,29 @@
         
         /* Header */
         .header {
-            padding: calc(env(safe-area-inset-top, 20px) + 16px) 20px 24px;
+            padding: 16px 20px 24px;
+            padding-top: calc(env(safe-area-inset-top, 20px) + 16px);
             position: relative;
             z-index: 10;
             transition: background 0.4s ease;
         }
         
+        /* Extend header background behind status bar */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: calc(-1 * env(safe-area-inset-top, 0px));
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            transition: background 0.4s ease;
+        }
+        
         .header.station { background: linear-gradient(135deg, var(--station-primary) 0%, var(--station-primary-light) 100%); }
         .header.mansion { background: linear-gradient(135deg, var(--mansion-primary) 0%, var(--mansion-primary-light) 100%); }
+        .header.station::before { background: var(--station-primary); }
+        .header.mansion::before { background: var(--mansion-primary); }
         
         .header-content {
             display: flex;
@@ -571,7 +602,7 @@
         }
     </style>
 </head>
-<body>
+<body class="theme-station">
     <div class="app-container">
         <!-- Header -->
         <header class="header station" id="header">
@@ -743,6 +774,9 @@
         // Set Direction
         function setDirection(dir) {
             direction = dir;
+            
+            // Update body theme class for safe area
+            document.body.className = `theme-${dir}`;
             
             // Update header
             header.className = `header ${dir}`;
@@ -946,6 +980,7 @@
         }
         
         // Initialize
+        document.body.className = 'theme-station';
         updateTime();
         renderSchedule();
         updateNextBus();

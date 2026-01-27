@@ -100,21 +100,20 @@
             -webkit-font-smoothing: antialiased;
         }
         
-        /* iOS PWA safe area background fill */
-        body::before {
-            content: '';
+        /* iOS PWA: fills the curved corner area at top */
+        .safe-area-fill {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: env(safe-area-inset-top, 0px);
-            z-index: 9999;
+            z-index: 100;
             transition: background 0.4s ease;
             pointer-events: none;
         }
         
-        body.theme-station::before { background: var(--station-primary); }
-        body.theme-mansion::before { background: var(--mansion-primary); }
+        .safe-area-fill.station { background: var(--station-primary); }
+        .safe-area-fill.mansion { background: var(--mansion-primary); }
         
         .app-container {
             max-width: 430px;
@@ -135,22 +134,8 @@
             transition: background 0.4s ease;
         }
         
-        /* Extend header background behind status bar */
-        .header::before {
-            content: '';
-            position: absolute;
-            top: calc(-1 * env(safe-area-inset-top, 0px));
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            transition: background 0.4s ease;
-        }
-        
         .header.station { background: linear-gradient(135deg, var(--station-primary) 0%, var(--station-primary-light) 100%); }
         .header.mansion { background: linear-gradient(135deg, var(--mansion-primary) 0%, var(--mansion-primary-light) 100%); }
-        .header.station::before { background: var(--station-primary); }
-        .header.mansion::before { background: var(--mansion-primary); }
         
         .header-content {
             display: flex;
@@ -603,6 +588,9 @@
     </style>
 </head>
 <body class="theme-station">
+    <!-- iOS safe area filler for curved corners -->
+    <div class="safe-area-fill station" id="safeAreaFill"></div>
+    
     <div class="app-container">
         <!-- Header -->
         <header class="header station" id="header">
@@ -770,6 +758,7 @@
         const nextBusCard = document.getElementById('nextBusCard');
         const nextBusContent = document.getElementById('nextBusContent');
         const scheduleList = document.getElementById('scheduleList');
+        const safeAreaFill = document.getElementById('safeAreaFill');
         
         // Set Direction
         function setDirection(dir) {
@@ -777,6 +766,9 @@
             
             // Update body theme class for safe area
             document.body.className = `theme-${dir}`;
+            
+            // Update safe area filler
+            safeAreaFill.className = `safe-area-fill ${dir}`;
             
             // Update header
             header.className = `header ${dir}`;

@@ -1,374 +1,370 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-```
-<!-- iOS Standalone Mode Settings -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Shuttle">
-
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="icon" href="icon.png" type="image/png">
-
-<title>Shuttle Schedule</title>
-
-<!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-
-<style>
-    :root {
-        --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-        
-        /* Station (Blue) */
-        --station-primary: #2563eb;
-        --station-surface: #eff6ff;
-        --station-border: #bfdbfe;
-        --station-text: #1e3a8a;
-        --station-glow: rgba(59, 130, 246, 0.3);
-        
-        /* Mansion (Rose) */
-        --mansion-primary: #db2777;
-        --mansion-surface: #fdf2f8;
-        --mansion-border: #fbcfe8;
-        --mansion-text: #831843;
-        --mansion-glow: rgba(236, 72, 153, 0.3);
-        
-        /* Neutral */
-        --bg-primary: #f8fafc;
-        --bg-secondary: #ffffff;
-        --bg-tertiary: #f1f5f9;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-muted: #94a3b8;
-        --border-subtle: #e2e8f0;
-        --shadow-color: rgba(15, 23, 42, 0.08);
-    }
     
-    @media (prefers-color-scheme: dark) {
+    <!-- iOS Standalone Mode Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shuttle">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" href="icon.png" type="image/png">
+    
+    <title>Shuttle Schedule</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
         :root {
-            --station-primary: #3b82f6;
-            --station-surface: rgba(59, 130, 246, 0.15);
-            --station-border: rgba(59, 130, 246, 0.3);
-            --station-text: #93c5fd;
+            --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, monospace;
             
-            --mansion-primary: #ec4899;
-            --mansion-surface: rgba(236, 72, 153, 0.15);
-            --mansion-border: rgba(236, 72, 153, 0.3);
-            --mansion-text: #f9a8d4;
+            /* Station (Blue) */
+            --station-primary: #2563eb;
+            --station-surface: #eff6ff;
+            --station-border: #bfdbfe;
+            --station-text: #1e3a8a;
+            --station-glow: rgba(59, 130, 246, 0.3);
             
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
-            --border-subtle: #334155;
-            --shadow-color: rgba(0, 0, 0, 0.3);
+            /* Mansion (Rose) */
+            --mansion-primary: #db2777;
+            --mansion-surface: #fdf2f8;
+            --mansion-border: #fbcfe8;
+            --mansion-text: #831843;
+            --mansion-glow: rgba(236, 72, 153, 0.3);
+            
+            /* Neutral */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-subtle: #e2e8f0;
+            --shadow-color: rgba(15, 23, 42, 0.08);
         }
-    }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-        font-family: var(--font-sans);
-        background: var(--bg-primary);
-        color: var(--text-primary);
-        min-height: 100dvh;
-        overscroll-behavior-y: none;
-        -webkit-font-smoothing: antialiased;
-    }
-    
-    .app-container {
-        max-width: 430px;
-        margin: 0 auto;
-        min-height: 100dvh;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    /* Header */
-    .header {
-        padding: 16px 20px 24px;
-        padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
-        transition: background 0.3s ease;
-    }
-    
-    .header.station { background: var(--station-primary); }
-    .header.mansion { background: var(--mansion-primary); }
-    
-    .header-content {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-    }
-    
-    .header-title {
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 4px;
-    }
-    
-    .current-time {
-        font-family: var(--font-mono);
-        font-size: 42px;
-        font-weight: 700;
-        color: white;
-        letter-spacing: -0.02em;
-        line-height: 1;
-    }
-    
-    .header-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        padding: 6px 12px;
-        border-radius: 100px;
-        font-size: 12px;
-        font-weight: 600;
-        color: white;
-        margin-top: 12px;
-    }
-    
-    .header-badge.weekend { background: rgba(251, 146, 60, 0.3); }
-    
-    .header-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        background: white;
-        padding: 4px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-    
-    .header-icon img {
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-        object-fit: cover;
-    }
-    
-    /* Tabs */
-    .tabs-container {
-        padding: 16px 16px 0;
-        background: var(--bg-primary);
-    }
-    
-    .tabs {
-        display: flex;
-        background: var(--bg-secondary);
-        border-radius: 16px;
-        padding: 4px;
-        box-shadow: 0 4px 24px var(--shadow-color), 0 0 0 1px var(--border-subtle);
-    }
-    
-    .tab-btn {
-        flex: 1;
-        padding: 14px 8px;
-        border: none;
-        background: transparent;
-        font-family: var(--font-sans);
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-muted);
-        cursor: pointer;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    
-    .tab-btn svg { width: 18px; height: 18px; opacity: 0.7; }
-    
-    .tab-btn.active {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        box-shadow: 0 2px 8px var(--shadow-color);
-    }
-    
-    .tab-btn.active.station { color: var(--station-primary); }
-    .tab-btn.active.mansion { color: var(--mansion-primary); }
-    
-    /* Main Content */
-    .main-content {
-        flex: 1;
-        padding: 16px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        background: var(--bg-primary);
-    }
-    
-    /* Next Bus Card */
-    .next-bus-card {
-        background: var(--bg-secondary);
-        border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 16px;
-        box-shadow: 0 4px 24px var(--shadow-color);
-        border: 1px solid var(--border-subtle);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .next-bus-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 4px;
-        transition: background 0.3s ease;
-    }
-    
-    .next-bus-card.station::before { background: var(--station-primary); }
-    .next-bus-card.mansion::before { background: var(--mansion-primary); }
-    
-    .next-bus-label {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 8px;
-    }
-    
-    .next-bus-time {
-        font-family: var(--font-mono);
-        font-size: 52px;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        line-height: 1;
-        margin-bottom: 16px;
-    }
-    
-    .next-bus-card.station .next-bus-time { color: var(--station-primary); }
-    .next-bus-card.mansion .next-bus-time { color: var(--mansion-primary); }
-    
-    .countdown-container { display: flex; align-items: center; gap: 12px; }
-    
-    .countdown-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 14px;
-        border-radius: 100px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    
-    .countdown-badge svg { width: 16px; height: 16px; }
-    
-    .next-bus-card.station .countdown-badge { background: var(--station-surface); color: var(--station-text); }
-    .next-bus-card.mansion .countdown-badge { background: var(--mansion-surface); color: var(--mansion-text); }
-    
-    /* Progress Ring */
-    .progress-ring { width: 44px; height: 44px; position: relative; }
-    .progress-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-    .progress-ring-bg { fill: none; stroke: var(--border-subtle); stroke-width: 4; }
-    .progress-ring-fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
-    .next-bus-card.station .progress-ring-fill { stroke: var(--station-primary); }
-    .next-bus-card.mansion .progress-ring-fill { stroke: var(--mansion-primary); }
-    .progress-ring-text {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: var(--font-mono);
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--text-secondary);
-    }
-    
-    /* Upcoming */
-    .upcoming-section { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
-    .upcoming-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
-    .upcoming-list { display: flex; gap: 8px; }
-    .upcoming-item { flex: 1; background: var(--bg-tertiary); border-radius: 10px; padding: 10px; text-align: center; }
-    .upcoming-time { font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: var(--text-primary); }
-    .upcoming-mins { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    
-    /* No Service */
-    .no-service { text-align: center; padding: 20px; }
-    .no-service-icon { width: 48px; height: 48px; margin: 0 auto 12px; color: var(--text-muted); }
-    .no-service-text { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
-    .no-service-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-    
-    /* Schedule */
-    .schedule-section {
-        background: var(--bg-secondary);
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 4px 24px var(--shadow-color);
-        border: 1px solid var(--border-subtle);
-    }
-    
-    .schedule-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .schedule-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-    .schedule-hint { font-size: 11px; color: var(--text-muted); }
-    
-    .schedule-row {
-        display: flex;
-        align-items: flex-start;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-    .schedule-row:last-child { border-bottom: none; }
-    .schedule-row.past { opacity: 0.35; }
-    .schedule-row.current {
-        background: var(--bg-tertiary);
-        margin: 0 -12px;
-        padding: 12px;
-        border-radius: 12px;
-        border-bottom: none;
-    }
-    
-    .hour-label {
-        width: 48px;
-        font-family: var(--font-mono);
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--text-primary);
-        flex-shrink: 0;
-    }
-    .hour-label span { font-size: 11px; font-weight: 500; color: var(--text-muted); }
-    .schedule-row.current.station .hour-label { color: var(--station-primary); }
-    .schedule-row.current.mansion .hour-label { color: var(--mansion-primary); }
-    
-    .minutes-list { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
-    
-    .minute-slot {
-        font-family: var(--font-mono);
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-secondary);
-        padding: 4px 8px;
-        border-radius: 6px;
-    }
-    .minute-slot.passed { color: var(--text-muted); text-decoration: line-through; }
-    .minute-slot.next { color: white; font-weight: 700; transform: scale(1.1); }
-    .minute-slot.next.station { background: var(--station-primary); box-shadow: 0 4px 16px var(--station-glow); }
-    .minute-slot.next.mansion { background: var(--mansion-primary); box-shadow: 0 4px 16px var(--mansion-glow); }
-    
-    .no-service-row { font-size: 13px; font-style: italic; color: var(--text-muted); padding: 4px 0; }
-    
-    .bottom-spacer { height: calc(env(safe-area-inset-bottom, 0px) + 20px); }
-    
-    .main-content::-webkit-scrollbar { width: 4px; }
-    .main-content::-webkit-scrollbar-track { background: transparent; }
-    .main-content::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
-</style>
-```
-
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --station-primary: #3b82f6;
+                --station-surface: rgba(59, 130, 246, 0.15);
+                --station-border: rgba(59, 130, 246, 0.3);
+                --station-text: #93c5fd;
+                
+                --mansion-primary: #ec4899;
+                --mansion-surface: rgba(236, 72, 153, 0.15);
+                --mansion-border: rgba(236, 72, 153, 0.3);
+                --mansion-text: #f9a8d4;
+                
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --bg-tertiary: #334155;
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-muted: #64748b;
+                --border-subtle: #334155;
+                --shadow-color: rgba(0, 0, 0, 0.3);
+            }
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100dvh;
+            overscroll-behavior-y: none;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            padding: 16px 20px 24px;
+            padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+            transition: background 0.3s ease;
+        }
+        
+        .header.station { background: var(--station-primary); }
+        .header.mansion { background: var(--mansion-primary); }
+        
+        .header-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        
+        .header-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 4px;
+        }
+        
+        .current-time {
+            font-family: var(--font-mono);
+            font-size: 42px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin-top: 12px;
+        }
+        
+        .header-badge.weekend { background: rgba(251, 146, 60, 0.3); }
+        
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: white;
+            padding: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        
+        /* Tabs */
+        .tabs-container {
+            padding: 16px 16px 0;
+            background: var(--bg-primary);
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 4px;
+            box-shadow: 0 4px 24px var(--shadow-color), 0 0 0 1px var(--border-subtle);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 14px 8px;
+            border: none;
+            background: transparent;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .tab-btn svg { width: 18px; height: 18px; opacity: 0.7; }
+        
+        .tab-btn.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        
+        .tab-btn.active.station { color: var(--station-primary); }
+        .tab-btn.active.mansion { color: var(--mansion-primary); }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--bg-primary);
+        }
+        
+        /* Next Bus Card */
+        .next-bus-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 24px var(--shadow-color);
+            border: 1px solid var(--border-subtle);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .next-bus-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            transition: background 0.3s ease;
+        }
+        
+        .next-bus-card.station::before { background: var(--station-primary); }
+        .next-bus-card.mansion::before { background: var(--mansion-primary); }
+        
+        .next-bus-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .next-bus-time {
+            font-family: var(--font-mono);
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+        
+        .next-bus-card.station .next-bus-time { color: var(--station-primary); }
+        .next-bus-card.mansion .next-bus-time { color: var(--mansion-primary); }
+        
+        .countdown-container { display: flex; align-items: center; gap: 12px; }
+        
+        .countdown-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .countdown-badge svg { width: 16px; height: 16px; }
+        
+        .next-bus-card.station .countdown-badge { background: var(--station-surface); color: var(--station-text); }
+        .next-bus-card.mansion .countdown-badge { background: var(--mansion-surface); color: var(--mansion-text); }
+        
+        /* Progress Ring */
+        .progress-ring { width: 44px; height: 44px; position: relative; }
+        .progress-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .progress-ring-bg { fill: none; stroke: var(--border-subtle); stroke-width: 4; }
+        .progress-ring-fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+        .next-bus-card.station .progress-ring-fill { stroke: var(--station-primary); }
+        .next-bus-card.mansion .progress-ring-fill { stroke: var(--mansion-primary); }
+        .progress-ring-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        
+        /* Upcoming */
+        .upcoming-section { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+        .upcoming-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+        .upcoming-list { display: flex; gap: 8px; }
+        .upcoming-item { flex: 1; background: var(--bg-tertiary); border-radius: 10px; padding: 10px; text-align: center; }
+        .upcoming-time { font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .upcoming-mins { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        
+        /* No Service */
+        .no-service { text-align: center; padding: 20px; }
+        .no-service-icon { width: 48px; height: 48px; margin: 0 auto 12px; color: var(--text-muted); }
+        .no-service-text { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
+        .no-service-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        
+        /* Schedule */
+        .schedule-section {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 24px var(--shadow-color);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .schedule-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .schedule-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+        .schedule-hint { font-size: 11px; color: var(--text-muted); }
+        
+        .schedule-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .schedule-row:last-child { border-bottom: none; }
+        .schedule-row.past { opacity: 0.35; }
+        .schedule-row.current {
+            background: var(--bg-tertiary);
+            margin: 0 -12px;
+            padding: 12px;
+            border-radius: 12px;
+            border-bottom: none;
+        }
+        
+        .hour-label {
+            width: 48px;
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+        .hour-label span { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+        .schedule-row.current.station .hour-label { color: var(--station-primary); }
+        .schedule-row.current.mansion .hour-label { color: var(--mansion-primary); }
+        
+        .minutes-list { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+        
+        .minute-slot {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .minute-slot.passed { color: var(--text-muted); text-decoration: line-through; }
+        .minute-slot.next { color: white; font-weight: 700; transform: scale(1.1); }
+        .minute-slot.next.station { background: var(--station-primary); box-shadow: 0 4px 16px var(--station-glow); }
+        .minute-slot.next.mansion { background: var(--mansion-primary); box-shadow: 0 4px 16px var(--mansion-glow); }
+        
+        .no-service-row { font-size: 13px; font-style: italic; color: var(--text-muted); padding: 4px 0; }
+        
+        .bottom-spacer { height: calc(env(safe-area-inset-bottom, 0px) + 20px); }
+        
+        .main-content::-webkit-scrollbar { width: 4px; }
+        .main-content::-webkit-scrollbar-track { background: transparent; }
+        .main-content::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -387,229 +383,226 @@
                 </div>
             </div>
         </header>
-
-```
-    <div class="tabs-container">
-        <div class="tabs">
-            <button class="tab-btn active station" id="btnStation" onclick="setDirection('station')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
-                辻堂駅
-            </button>
-            <button class="tab-btn" id="btnMansion" onclick="setDirection('mansion')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                マンション
-            </button>
+        
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active station" id="btnStation" onclick="setDirection('station')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
+                    辻堂駅
+                </button>
+                <button class="tab-btn" id="btnMansion" onclick="setDirection('mansion')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    マンション
+                </button>
+            </div>
         </div>
+        
+        <main class="main-content">
+            <div class="next-bus-card station" id="nextBusCard">
+                <div class="next-bus-label">次のバス</div>
+                <div id="nextBusContent"></div>
+            </div>
+            
+            <div class="schedule-section">
+                <div class="schedule-header">
+                    <div class="schedule-title">時刻表</div>
+                    <div class="schedule-hint">平日のみ運行</div>
+                </div>
+                <div id="scheduleList"></div>
+            </div>
+            
+            <div class="bottom-spacer"></div>
+        </main>
     </div>
     
-    <main class="main-content">
-        <div class="next-bus-card station" id="nextBusCard">
-            <div class="next-bus-label">次のバス</div>
-            <div id="nextBusContent"></div>
-        </div>
-        
-        <div class="schedule-section">
-            <div class="schedule-header">
-                <div class="schedule-title">時刻表</div>
-                <div class="schedule-hint">平日のみ運行</div>
-            </div>
-            <div id="scheduleList"></div>
-        </div>
-        
-        <div class="bottom-spacer"></div>
-    </main>
-</div>
-
-<script>
-    const schedules = {
-        station: {
-            6: [0, 15, 30, 45], 7: [0, 10, 15, 25, 30, 40, 45, 55], 8: [0, 20, 40],
-            9: [0, 20, 40], 10: [0, 20, 40], 11: [0, 20, 40], 12: [0, 20, 40], 13: [0], 14: [],
-            15: [0, 20, 40], 16: [0, 20, 40], 17: [0, 20, 40], 18: [0, 20, 40],
-            19: [0, 15, 30, 45], 20: [0, 20, 40], 21: [0, 20, 40], 22: [0],
-        },
-        mansion: {
-            6: [5, 20, 35, 50], 7: [5, 15, 20, 30, 35, 45, 50], 8: [0, 5, 25, 45],
-            9: [5, 25, 45], 10: [5, 25, 45], 11: [5, 25, 45], 12: [5, 25, 45], 13: [5], 14: [],
-            15: [5, 25, 45], 16: [5, 25, 45], 17: [5, 25, 45], 18: [5, 25, 45],
-            19: [5, 20, 35, 50], 20: [5, 25, 45], 21: [5, 25, 45], 22: [5],
-        }
-    };
-    
-    let direction = 'station';
-    let now = new Date();
-    
-    const pad = n => String(n).padStart(2, '0');
-    const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
-    
-    const getNextBuses = (schedule, time, count = 4) => {
-        const h = time.getHours(), m = time.getMinutes();
-        const buses = [];
-        for (let hour = h; hour <= 22; hour++) {
-            for (const min of (schedule[hour] || [])) {
-                if (hour === h && min <= m) continue;
-                buses.push({ hour, minute: min });
-                if (buses.length >= count) return buses;
+    <script>
+        const schedules = {
+            station: {
+                6: [0, 15, 30, 45], 7: [0, 10, 15, 25, 30, 40, 45, 55], 8: [0, 20, 40],
+                9: [0, 20, 40], 10: [0, 20, 40], 11: [0, 20, 40], 12: [0, 20, 40], 13: [0], 14: [],
+                15: [0, 20, 40], 16: [0, 20, 40], 17: [0, 20, 40], 18: [0, 20, 40],
+                19: [0, 15, 30, 45], 20: [0, 20, 40], 21: [0, 20, 40], 22: [0],
+            },
+            mansion: {
+                6: [5, 20, 35, 50], 7: [5, 15, 20, 30, 35, 45, 50], 8: [0, 5, 25, 45],
+                9: [5, 25, 45], 10: [5, 25, 45], 11: [5, 25, 45], 12: [5, 25, 45], 13: [5], 14: [],
+                15: [5, 25, 45], 16: [5, 25, 45], 17: [5, 25, 45], 18: [5, 25, 45],
+                19: [5, 20, 35, 50], 20: [5, 25, 45], 21: [5, 25, 45], 22: [5],
             }
-        }
-        for (let hour = 6; hour <= 22 && buses.length < count; hour++) {
-            for (const min of (schedule[hour] || [])) {
-                buses.push({ hour, minute: min, tomorrow: true });
-                if (buses.length >= count) return buses;
-            }
-        }
-        return buses;
-    };
-    
-    const getMinutesUntil = (bus, time) => {
-        if (!bus) return null;
-        const target = new Date(time);
-        target.setHours(bus.hour, bus.minute, 0, 0);
-        if (bus.tomorrow) target.setDate(target.getDate() + 1);
-        return Math.max(0, Math.floor((target - time) / 60000));
-    };
-    
-    const formatCountdown = mins => {
-        if (mins === null) return '';
-        if (mins < 60) return `あと ${mins}分`;
-        return `あと ${Math.floor(mins/60)}時間${mins%60}分`;
-    };
-    
-    const header = document.getElementById('header');
-    const currentTimeEl = document.getElementById('currentTime');
-    const dayBadge = document.getElementById('dayBadge');
-    const dayText = document.getElementById('dayText');
-    const btnStation = document.getElementById('btnStation');
-    const btnMansion = document.getElementById('btnMansion');
-    const nextBusCard = document.getElementById('nextBusCard');
-    const nextBusContent = document.getElementById('nextBusContent');
-    const scheduleList = document.getElementById('scheduleList');
-    
-    function setDirection(dir) {
-        direction = dir;
-        header.className = `header ${dir}`;
-        btnStation.className = `tab-btn ${dir === 'station' ? 'active station' : ''}`;
-        btnMansion.className = `tab-btn ${dir === 'mansion' ? 'active mansion' : ''}`;
-        nextBusCard.className = `next-bus-card ${dir}`;
-        renderSchedule();
-        updateNextBus();
-    }
-    
-    function renderSchedule() {
-        const schedule = schedules[direction];
-        const hour = now.getHours(), minute = now.getMinutes();
-        const nextBuses = getNextBuses(schedule, now);
-        const nextBus = nextBuses[0];
+        };
         
-        let html = '';
-        for (let h = 6; h <= 22; h++) {
-            const mins = schedule[h] || [];
-            if (mins.length === 0 && (h < 10 || h > 20)) continue;
-            
-            const isPast = h < hour, isCurrent = h === hour;
-            let rowClass = 'schedule-row';
-            if (isPast) rowClass += ' past';
-            if (isCurrent) rowClass += ` current ${direction}`;
-            
-            html += `<div class="${rowClass}" id="row-${h}"><div class="hour-label">${h}<span>時</span></div><div class="minutes-list">`;
-            
-            if (mins.length === 0) {
-                html += '<div class="no-service-row">運行なし</div>';
-            } else {
-                for (const m of mins) {
-                    const isPassed = isCurrent && m <= minute;
-                    const isNext = nextBus && nextBus.hour === h && nextBus.minute === m && !nextBus.tomorrow;
-                    let slotClass = 'minute-slot';
-                    if (isPassed) slotClass += ' passed';
-                    if (isNext) slotClass += ` next ${direction}`;
-                    html += `<span class="${slotClass}" id="slot-${h}-${m}">${pad(m)}</span>`;
+        let direction = 'station';
+        let now = new Date();
+        
+        const pad = n => String(n).padStart(2, '0');
+        const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+        
+        const getNextBuses = (schedule, time, count = 4) => {
+            const h = time.getHours(), m = time.getMinutes();
+            const buses = [];
+            for (let hour = h; hour <= 22; hour++) {
+                for (const min of (schedule[hour] || [])) {
+                    if (hour === h && min <= m) continue;
+                    buses.push({ hour, minute: min });
+                    if (buses.length >= count) return buses;
                 }
             }
-            html += '</div></div>';
-        }
-        scheduleList.innerHTML = html;
-        
-        const currentRow = document.getElementById(`row-${hour}`);
-        if (currentRow) setTimeout(() => currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-    }
-    
-    function updateNextBus() {
-        const schedule = schedules[direction];
-        const weekend = isWeekend(now);
-        
-        dayBadge.className = weekend ? 'header-badge weekend' : 'header-badge';
-        dayText.textContent = weekend ? '週末・運休日' : '平日運行中';
-        
-        if (weekend) {
-            nextBusContent.innerHTML = `<div class="no-service"><svg class="no-service-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg><div class="no-service-text">本日は運休です</div><div class="no-service-sub">平日のみ運行しています</div></div>`;
-            return;
-        }
-        
-        const nextBuses = getNextBuses(schedule, now);
-        if (nextBuses.length === 0) {
-            nextBusContent.innerHTML = `<div class="no-service"><svg class="no-service-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="no-service-text">本日の運行は終了しました</div><div class="no-service-sub">明日の始発は 6:00 です</div></div>`;
-            return;
-        }
-        
-        const next = nextBuses[0];
-        const minsUntil = getMinutesUntil(next, now);
-        const upcoming = nextBuses.slice(1, 4);
-        const circ = 2 * Math.PI * 18;
-        const offset = circ * (1 - Math.min(minsUntil / 60, 1));
-        
-        let html = `<div class="next-bus-time">${pad(next.hour)}:${pad(next.minute)}</div>
-            <div class="countdown-container">
-                <div class="countdown-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatCountdown(minsUntil)}${next.tomorrow ? ' (明日)' : ''}</div>
-                <div class="progress-ring"><svg viewBox="0 0 44 44"><circle class="progress-ring-bg" cx="22" cy="22" r="18"/><circle class="progress-ring-fill" cx="22" cy="22" r="18" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg><div class="progress-ring-text">${minsUntil}'</div></div>
-            </div>`;
-        
-        if (upcoming.length > 0) {
-            html += `<div class="upcoming-section"><div class="upcoming-label">その後のバス</div><div class="upcoming-list">`;
-            for (const bus of upcoming) {
-                const mins = getMinutesUntil(bus, now);
-                html += `<div class="upcoming-item"><div class="upcoming-time">${pad(bus.hour)}:${pad(bus.minute)}</div><div class="upcoming-mins">${mins}分後${bus.tomorrow ? ' (明日)' : ''}</div></div>`;
+            for (let hour = 6; hour <= 22 && buses.length < count; hour++) {
+                for (const min of (schedule[hour] || [])) {
+                    buses.push({ hour, minute: min, tomorrow: true });
+                    if (buses.length >= count) return buses;
+                }
             }
-            html += '</div></div>';
-        }
-        nextBusContent.innerHTML = html;
-    }
-    
-    function updateTime() {
-        now = new Date();
-        currentTimeEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    }
-    
-    function updateSlots() {
-        const schedule = schedules[direction];
-        const hour = now.getHours(), minute = now.getMinutes();
-        const nextBus = getNextBuses(schedule, now)[0];
+            return buses;
+        };
         
-        for (let h = 6; h <= 22; h++) {
-            const row = document.getElementById(`row-${h}`);
-            if (!row) continue;
-            row.className = `schedule-row${h < hour ? ' past' : ''}${h === hour ? ` current ${direction}` : ''}`;
+        const getMinutesUntil = (bus, time) => {
+            if (!bus) return null;
+            const target = new Date(time);
+            target.setHours(bus.hour, bus.minute, 0, 0);
+            if (bus.tomorrow) target.setDate(target.getDate() + 1);
+            return Math.max(0, Math.floor((target - time) / 60000));
+        };
+        
+        const formatCountdown = mins => {
+            if (mins === null) return '';
+            if (mins < 60) return `あと ${mins}分`;
+            return `あと ${Math.floor(mins/60)}時間${mins%60}分`;
+        };
+        
+        const header = document.getElementById('header');
+        const currentTimeEl = document.getElementById('currentTime');
+        const dayBadge = document.getElementById('dayBadge');
+        const dayText = document.getElementById('dayText');
+        const btnStation = document.getElementById('btnStation');
+        const btnMansion = document.getElementById('btnMansion');
+        const nextBusCard = document.getElementById('nextBusCard');
+        const nextBusContent = document.getElementById('nextBusContent');
+        const scheduleList = document.getElementById('scheduleList');
+        
+        function setDirection(dir) {
+            direction = dir;
+            header.className = `header ${dir}`;
+            btnStation.className = `tab-btn ${dir === 'station' ? 'active station' : ''}`;
+            btnMansion.className = `tab-btn ${dir === 'mansion' ? 'active mansion' : ''}`;
+            nextBusCard.className = `next-bus-card ${dir}`;
+            renderSchedule();
+            updateNextBus();
+        }
+        
+        function renderSchedule() {
+            const schedule = schedules[direction];
+            const hour = now.getHours(), minute = now.getMinutes();
+            const nextBuses = getNextBuses(schedule, now);
+            const nextBus = nextBuses[0];
             
-            for (const m of (schedule[h] || [])) {
-                const slot = document.getElementById(`slot-${h}-${m}`);
-                if (!slot) continue;
-                const isPassed = h === hour && m <= minute;
-                const isNext = nextBus && nextBus.hour === h && nextBus.minute === m && !nextBus.tomorrow;
-                slot.className = `minute-slot${isPassed ? ' passed' : ''}${isNext ? ` next ${direction}` : ''}`;
+            let html = '';
+            for (let h = 6; h <= 22; h++) {
+                const mins = schedule[h] || [];
+                if (mins.length === 0 && (h < 10 || h > 20)) continue;
+                
+                const isPast = h < hour, isCurrent = h === hour;
+                let rowClass = 'schedule-row';
+                if (isPast) rowClass += ' past';
+                if (isCurrent) rowClass += ` current ${direction}`;
+                
+                html += `<div class="${rowClass}" id="row-${h}"><div class="hour-label">${h}<span>時</span></div><div class="minutes-list">`;
+                
+                if (mins.length === 0) {
+                    html += '<div class="no-service-row">運行なし</div>';
+                } else {
+                    for (const m of mins) {
+                        const isPassed = isCurrent && m <= minute;
+                        const isNext = nextBus && nextBus.hour === h && nextBus.minute === m && !nextBus.tomorrow;
+                        let slotClass = 'minute-slot';
+                        if (isPassed) slotClass += ' passed';
+                        if (isNext) slotClass += ` next ${direction}`;
+                        html += `<span class="${slotClass}" id="slot-${h}-${m}">${pad(m)}</span>`;
+                    }
+                }
+                html += '</div></div>';
+            }
+            scheduleList.innerHTML = html;
+            
+            const currentRow = document.getElementById(`row-${hour}`);
+            if (currentRow) setTimeout(() => currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+        
+        function updateNextBus() {
+            const schedule = schedules[direction];
+            const weekend = isWeekend(now);
+            
+            dayBadge.className = weekend ? 'header-badge weekend' : 'header-badge';
+            dayText.textContent = weekend ? '週末・運休日' : '平日運行中';
+            
+            if (weekend) {
+                nextBusContent.innerHTML = `<div class="no-service"><svg class="no-service-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg><div class="no-service-text">本日は運休です</div><div class="no-service-sub">平日のみ運行しています</div></div>`;
+                return;
+            }
+            
+            const nextBuses = getNextBuses(schedule, now);
+            if (nextBuses.length === 0) {
+                nextBusContent.innerHTML = `<div class="no-service"><svg class="no-service-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="no-service-text">本日の運行は終了しました</div><div class="no-service-sub">明日の始発は 6:00 です</div></div>`;
+                return;
+            }
+            
+            const next = nextBuses[0];
+            const minsUntil = getMinutesUntil(next, now);
+            const upcoming = nextBuses.slice(1, 4);
+            const circ = 2 * Math.PI * 18;
+            const offset = circ * (1 - Math.min(minsUntil / 60, 1));
+            
+            let html = `<div class="next-bus-time">${pad(next.hour)}:${pad(next.minute)}</div>
+                <div class="countdown-container">
+                    <div class="countdown-badge"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatCountdown(minsUntil)}${next.tomorrow ? ' (明日)' : ''}</div>
+                    <div class="progress-ring"><svg viewBox="0 0 44 44"><circle class="progress-ring-bg" cx="22" cy="22" r="18"/><circle class="progress-ring-fill" cx="22" cy="22" r="18" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg><div class="progress-ring-text">${minsUntil}'</div></div>
+                </div>`;
+            
+            if (upcoming.length > 0) {
+                html += `<div class="upcoming-section"><div class="upcoming-label">その後のバス</div><div class="upcoming-list">`;
+                for (const bus of upcoming) {
+                    const mins = getMinutesUntil(bus, now);
+                    html += `<div class="upcoming-item"><div class="upcoming-time">${pad(bus.hour)}:${pad(bus.minute)}</div><div class="upcoming-mins">${mins}分後${bus.tomorrow ? ' (明日)' : ''}</div></div>`;
+                }
+                html += '</div></div>';
+            }
+            nextBusContent.innerHTML = html;
+        }
+        
+        function updateTime() {
+            now = new Date();
+            currentTimeEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        }
+        
+        function updateSlots() {
+            const schedule = schedules[direction];
+            const hour = now.getHours(), minute = now.getMinutes();
+            const nextBus = getNextBuses(schedule, now)[0];
+            
+            for (let h = 6; h <= 22; h++) {
+                const row = document.getElementById(`row-${h}`);
+                if (!row) continue;
+                row.className = `schedule-row${h < hour ? ' past' : ''}${h === hour ? ` current ${direction}` : ''}`;
+                
+                for (const m of (schedule[h] || [])) {
+                    const slot = document.getElementById(`slot-${h}-${m}`);
+                    if (!slot) continue;
+                    const isPassed = h === hour && m <= minute;
+                    const isNext = nextBus && nextBus.hour === h && nextBus.minute === m && !nextBus.tomorrow;
+                    slot.className = `minute-slot${isPassed ? ' passed' : ''}${isNext ? ` next ${direction}` : ''}`;
+                }
             }
         }
-    }
-    
-    updateTime();
-    renderSchedule();
-    updateNextBus();
-    
-    setInterval(() => {
-        const prevMin = now.getMinutes();
+        
         updateTime();
-        if (now.getMinutes() !== prevMin) { updateNextBus(); updateSlots(); }
-    }, 1000);
-</script>
-```
-
+        renderSchedule();
+        updateNextBus();
+        
+        setInterval(() => {
+            const prevMin = now.getMinutes();
+            updateTime();
+            if (now.getMinutes() !== prevMin) { updateNextBus(); updateSlots(); }
+        }, 1000);
+    </script>
 </body>
 </html>

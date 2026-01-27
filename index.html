@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shuttle Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Scrollbar Styles to match 'scrollbar-thin' */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #e2e8f0;
+            border-radius: 20px;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #e2e8f0 transparent;
+        }
+        
+        /* Transition utilities */
+        .transition-colors-fast {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 300ms;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans text-slate-800">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+        
+        <!-- Header Section -->
+        <div id="header-bg" class="bg-blue-600 p-6 text-white text-center relative transition-colors-fast">
+            <div class="absolute top-4 right-4 opacity-50">
+                <!-- Bus Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
+            </div>
+            <h1 class="text-xl font-bold mb-1">シャトルバス運行時刻表</h1>
+            <p class="text-white/90 text-sm font-medium">平日のみ運行</p>
+            <div class="mt-4 flex items-center justify-center space-x-2 text-3xl font-mono font-bold tracking-wider">
+                 <!-- Clock Icon -->
+                 <svg class="mb-1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                 <span id="current-time-display">--:--</span>
+            </div>
+        </div>
+
+        <!-- Direction Tabs -->
+        <div class="flex bg-slate-100 p-1">
+            <button id="btn-to-station" onclick="setDirection('toStation')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+                <!-- Train Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
+                辻堂駅 行き
+            </button>
+            <button id="btn-to-mansion" onclick="setDirection('toMansion')" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+                マンション 行き 
+                <!-- Home Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+        </div>
+
+        <!-- Next Bus Card -->
+        <div class="p-6 pb-2">
+            <div id="next-bus-card" class="border rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-colors-fast">
+                 <span id="next-bus-label" class="text-xs font-bold uppercase tracking-wider mb-1">次の出発</span>
+                 
+                 <!-- Content Container -->
+                 <div id="next-bus-content">
+                     <!-- Populated by JS -->
+                 </div>
+            </div>
+        </div>
+
+        <!-- Full Schedule List -->
+        <div class="p-6 pt-2">
+            <div id="schedule-list" class="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-slate-50 border-t border-slate-100 p-4 text-center">
+            <div class="flex items-center justify-center gap-2 text-slate-400 text-xs">
+                <!-- Alert Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                <span>交通事情により遅れることがあります</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Data & Config ---
+        const scheduleToStation = {
+            6: [0, 15, 30, 45],
+            7: [0, 10, 15, 25, 30, 40, 45, 55],
+            8: [0, 20, 40],
+            9: [0, 20, 40],
+            10: [0, 20, 40],
+            11: [0, 20, 40],
+            12: [0, 20, 40],
+            13: [0],
+            14: [],
+            15: [0, 20, 40],
+            16: [0, 20, 40],
+            17: [0, 20, 40],
+            18: [0, 20, 40],
+            19: [0, 15, 30, 45],
+            20: [0, 20, 40],
+            21: [0, 20, 40],
+            22: [0],
+        };
+
+        const scheduleToMansion = {
+            6: [5, 20, 35, 50],
+            7: [5, 15, 20, 30, 35, 45, 50],
+            8: [0, 5, 25, 45],
+            9: [5, 25, 45],
+            10: [5, 25, 45],
+            11: [5, 25, 45],
+            12: [5, 25, 45],
+            13: [5],
+            14: [],
+            15: [5, 25, 45],
+            16: [5, 25, 45],
+            17: [5, 25, 45],
+            18: [5, 25, 45],
+            19: [5, 20, 35, 50],
+            20: [5, 25, 45],
+            21: [5, 25, 45],
+            22: [5],
+        };
+
+        const themes = {
+            toStation: {
+                main: 'bg-blue-600',
+                light: 'bg-blue-50',
+                border: 'border-blue-100',
+                text: 'text-blue-600',
+                textDark: 'text-blue-900',
+                badge: 'bg-blue-100 text-blue-700',
+                ring: 'ring-blue-100',
+                buttonActive: 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5',
+                buttonInactive: 'text-slate-400 hover:text-slate-600',
+                nextHighlight: 'bg-blue-600'
+            },
+            toMansion: {
+                main: 'bg-pink-500',
+                light: 'bg-pink-50',
+                border: 'border-pink-100',
+                text: 'text-pink-600',
+                textDark: 'text-pink-900',
+                badge: 'bg-pink-100 text-pink-700',
+                ring: 'ring-pink-100',
+                buttonActive: 'bg-white text-pink-600 shadow-sm ring-1 ring-black/5',
+                buttonInactive: 'text-slate-400 hover:text-slate-600',
+                nextHighlight: 'bg-pink-500'
+            }
+        };
+
+        // --- State ---
+        let direction = 'toStation';
+        let currentTime = new Date();
+        let nextBus = null;
+
+        // --- Logic ---
+        function setDirection(newDir) {
+            direction = newDir;
+            updateInterface(true); // true = force full re-render of list
+        }
+
+        function calculateNextBus(now, currentSchedule) {
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            let found = null;
+
+            // Check current hour
+            if (currentSchedule[currentHour]) {
+                const remaining = currentSchedule[currentHour].filter(m => m > currentMinute);
+                if (remaining.length > 0) {
+                    found = { hour: currentHour, minute: remaining[0] };
+                }
+            }
+
+            // Check next hours
+            if (!found) {
+                for (let h = currentHour + 1; h <= 23; h++) {
+                    if (currentSchedule[h] && currentSchedule[h].length > 0) {
+                        found = { hour: h, minute: currentSchedule[h][0] };
+                        break;
+                    }
+                }
+            }
+
+            // Check tomorrow
+            if (!found) {
+                for (let h = 0; h <= 23; h++) {
+                    if (currentSchedule[h] && currentSchedule[h].length > 0) {
+                        found = { hour: h, minute: currentSchedule[h][0], isTomorrow: true };
+                        break;
+                    }
+                }
+            }
+            return found;
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        function getCountdown(bus, now) {
+            if (!bus) return '';
+            const busTime = new Date(now);
+            busTime.setHours(bus.hour);
+            busTime.setMinutes(bus.minute);
+            busTime.setSeconds(0);
+            
+            if (bus.isTomorrow) {
+                busTime.setDate(busTime.getDate() + 1);
+            }
+
+            const diffMs = busTime - now;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHrs = Math.floor(diffMins / 60);
+            const remainingMins = diffMins % 60;
+
+            if (diffMins < 60) return `あと ${diffMins} 分`;
+            return `あと ${diffHrs}時間 ${remainingMins}分`;
+        }
+
+        // --- DOM Updates ---
+        
+        function updateInterface(fullRender = false) {
+            const theme = themes[direction];
+            const currentSchedule = direction === 'toStation' ? scheduleToStation : scheduleToMansion;
+            
+            // 1. Update Header Theme
+            const header = document.getElementById('header-bg');
+            header.className = `${theme.main} p-6 text-white text-center relative transition-colors-fast`;
+            document.getElementById('current-time-display').textContent = formatTime(currentTime);
+
+            // 2. Update Buttons
+            const btnStation = document.getElementById('btn-to-station');
+            const btnMansion = document.getElementById('btn-to-mansion');
+            
+            if (direction === 'toStation') {
+                btnStation.className = `flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${theme.buttonActive}`;
+                btnMansion.className = `flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${theme.buttonInactive}`;
+            } else {
+                btnStation.className = `flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${theme.buttonInactive}`;
+                btnMansion.className = `flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${theme.buttonActive}`;
+            }
+
+            // 3. Update Next Bus Card
+            nextBus = calculateNextBus(currentTime, currentSchedule);
+            const card = document.getElementById('next-bus-card');
+            const label = document.getElementById('next-bus-label');
+            const content = document.getElementById('next-bus-content');
+            
+            card.className = `${theme.light} ${theme.border} border rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-colors-fast`;
+            label.className = `${theme.text} text-xs font-bold uppercase tracking-wider mb-1`;
+
+            if (nextBus) {
+                const timeStr = `${String(nextBus.hour).padStart(2, '0')}:${String(nextBus.minute).padStart(2, '0')}`;
+                content.innerHTML = `
+                    <div class="${theme.textDark} text-5xl font-extrabold mb-2 transition-colors-fast">
+                       ${timeStr}
+                    </div>
+                    <div class="inline-flex items-center gap-2 ${theme.badge} px-4 py-1.5 rounded-full text-sm font-bold transition-colors-fast">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                       ${getCountdown(nextBus, currentTime)}
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `<div class="text-slate-400 font-bold py-4">本日の運行は終了しました</div>`;
+            }
+
+            // 4. Update List
+            // We only rebuild the HTML if direction changes to preserve scroll, 
+            // OR if it's the first run.
+            // However, since highlights change every minute, we need to update classes.
+            // Simpler approach: Rebuild list only on direction change, update classes on tick.
+            
+            const listContainer = document.getElementById('schedule-list');
+            
+            if (fullRender) {
+                listContainer.innerHTML = ''; // Clear
+                
+                Object.keys(currentSchedule).forEach(h => {
+                    const hour = parseInt(h);
+                    const mins = currentSchedule[h];
+                    
+                    // Skip empty midday hours
+                    if (mins.length === 0 && (hour < 10 || hour > 20)) return;
+
+                    const row = document.createElement('div');
+                    row.id = `row-${hour}`;
+                    row.className = `flex items-start p-3 rounded-xl transition-colors`; // Base class
+                    
+                    let html = `
+                        <div id="label-${hour}" class="w-12 text-lg font-bold">
+                            ${hour}<span class="text-xs font-normal ml-0.5">時</span>
+                        </div>
+                        <div class="flex-1 flex flex-wrap gap-2">
+                    `;
+                    
+                    if (mins.length > 0) {
+                        mins.forEach(min => {
+                            html += `<span id="slot-${hour}-${min}" class="px-2 py-0.5 rounded-md font-mono text-base font-medium transition-all duration-300">${String(min).padStart(2, '0')}</span>`;
+                        });
+                    } else {
+                        html += `<span class="text-slate-300 italic text-sm py-1">運行なし</span>`;
+                    }
+                    
+                    html += `</div>`;
+                    row.innerHTML = html;
+                    listContainer.appendChild(row);
+                });
+            }
+
+            // 5. Update List Highlights (Runs every second)
+            Object.keys(currentSchedule).forEach(h => {
+                const hour = parseInt(h);
+                if (currentSchedule[h].length === 0 && (hour < 10 || hour > 20)) return;
+
+                const row = document.getElementById(`row-${hour}`);
+                if (!row) return;
+
+                const isPastHour = hour < currentTime.getHours();
+                const isCurrentHour = hour === currentTime.getHours();
+
+                // Row Styles
+                if (isCurrentHour) {
+                    row.className = `flex items-start p-3 rounded-xl transition-colors ${theme.light} ring-1 ${theme.ring}`;
+                    document.getElementById(`label-${hour}`).className = `w-12 text-lg font-bold ${theme.text}`;
+                } else {
+                    row.className = `flex items-start p-3 rounded-xl transition-colors hover:bg-slate-50 ${isPastHour ? 'opacity-40' : ''}`;
+                    document.getElementById(`label-${hour}`).className = `w-12 text-lg font-bold ${isCurrentHour ? theme.text : 'text-slate-700'}`;
+                }
+
+                // Slot Styles
+                currentSchedule[h].forEach(min => {
+                    const slot = document.getElementById(`slot-${hour}-${min}`);
+                    if (!slot) return;
+
+                    const isBusPast = isCurrentHour && min < currentTime.getMinutes();
+                    const isNext = nextBus && nextBus.hour === hour && nextBus.minute === min && !nextBus.isTomorrow;
+                    
+                    // Reset classes first
+                    let classes = "px-2 py-0.5 rounded-md font-mono text-base font-medium transition-all duration-300 ";
+                    
+                    if (isNext) {
+                        classes += `${theme.nextHighlight} text-white shadow-md scale-110`;
+                    } else if (!isNext && isBusPast) {
+                        classes += "text-slate-300 line-through decoration-slate-300";
+                    } else {
+                        classes += "text-slate-600";
+                    }
+                    
+                    slot.className = classes;
+                });
+            });
+        }
+
+        // --- Initialization ---
+        setInterval(() => {
+            currentTime = new Date();
+            updateInterface(false); // Update time/highlights, don't rebuild list DOM
+        }, 1000);
+
+        // Initial render
+        updateInterface(true);
+
+    </script>
+</body>
+</html>
+

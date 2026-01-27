@@ -6,14 +6,13 @@
     
     <!-- iOS Standalone Mode Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- content="default" allows the status bar to take the body background color (gradient) -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Shuttle">
 
     <!-- Theme Color Meta Tag -->
     <meta id="meta-theme-color" name="theme-color" content="#2563eb">
 
-    <!-- App Icon: Fixed to icon.png -->
+    <!-- App Icon: icon.png -->
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png" type="image/png">
     
@@ -35,7 +34,7 @@
         #schedule-list { overscroll-behavior-y: contain; }
     </style>
 </head>
-<!-- Body: Background is managed by JS to create a Split Gradient -->
+<!-- Body: Background is managed by JS -->
 <body id="app-body" class="h-[100dvh] w-full font-sans text-slate-800 overflow-hidden transition-colors-fast">
 
     <!-- App Container -->
@@ -43,7 +42,7 @@
         
         <!-- Header Section -->
         <div id="header-bg" class="bg-blue-600 px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] text-white text-center relative transition-colors-fast shrink-0 z-10">
-            <!-- Shirotan Bus Icon (Top Right) - icon.png -->
+            <!-- Shirotan Bus Icon (Top Right) -->
             <div class="absolute top-[calc(1rem+env(safe-area-inset-top))] right-4">
                 <img src="icon.png" alt="Bus Logo" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white">
             </div>
@@ -81,23 +80,24 @@
                 </div>
             </div>
 
-            <!-- Full Schedule List -->
-            <div class="flex-1 px-6 pt-2 pb-0 overflow-y-auto custom-scrollbar relative bg-slate-100">
-                 <div id="schedule-list" class="space-y-2 pb-2">
+            <!-- Full Schedule List & Footer (Scrollable) -->
+            <div class="flex-1 px-6 pt-2 overflow-y-auto custom-scrollbar relative bg-slate-100">
+                 <!-- Schedule Items -->
+                 <div id="schedule-list" class="space-y-2">
                     <!-- Populated by JS -->
+                </div>
+
+                <!-- Footer / Warning Text (Now inside scroll area) -->
+                <!-- pb-[calc(2rem+env(safe-area-inset-bottom))] ensures enough space at the bottom for home indicator -->
+                <div class="py-6 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center">
+                    <div class="flex items-center justify-center gap-2 text-slate-400 text-[10px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        <span>交通事情により遅れることがあります</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <!-- Updated: bg-slate-100 to match list, minimized padding to push text to bottom -->
-            <!-- pt-2: small top padding -->
-            <!-- pb-[calc(env(safe-area-inset-bottom)+2px)]: safe area + minimal 2px space -->
-            <div class="bg-slate-100 p-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+2px)] text-center shrink-0">
-                <div class="flex items-center justify-center gap-2 text-slate-400 text-[10px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                    <span>交通事情により遅れることがあります</span>
-                </div>
-            </div>
+            <!-- Fixed footer removed -->
         </div>
 
     </div>
@@ -247,7 +247,7 @@
             const currentSchedule = direction === 'toStation' ? scheduleToStation : scheduleToMansion;
             
             // 0. Update BODY Background with GRADIENT
-            // Top half = Theme Color, Bottom half = Slate-100 (#f1f5f9) to match new footer
+            // Top half = Theme Color, Bottom half = Slate-100 (#f1f5f9)
             document.body.style.background = `linear-gradient(to bottom, ${theme.hex} 0%, ${theme.hex} 50%, #f1f5f9 50%, #f1f5f9 100%)`;
 
             // 1. Update Meta Theme Color (For browser UI)

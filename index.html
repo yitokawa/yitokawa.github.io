@@ -35,7 +35,7 @@
         #schedule-list { overscroll-behavior-y: contain; }
     </style>
 </head>
-<!-- Body: Background is managed by JS to create a Split Gradient (Top=Color, Bottom=White) -->
+<!-- Body: Background is managed by JS to create a Split Gradient -->
 <body id="app-body" class="h-[100dvh] w-full font-sans text-slate-800 overflow-hidden transition-colors-fast">
 
     <!-- App Container -->
@@ -83,16 +83,18 @@
 
             <!-- Full Schedule List -->
             <div class="flex-1 px-6 pt-2 pb-0 overflow-y-auto custom-scrollbar relative bg-slate-100">
-                 <div id="schedule-list" class="space-y-2 pb-4">
+                 <div id="schedule-list" class="space-y-2 pb-2">
                     <!-- Populated by JS -->
                 </div>
             </div>
 
             <!-- Footer -->
-            <!-- Background set to slate-50 to match the bottom half of the body gradient -->
-            <div class="bg-slate-50 border-t border-slate-100 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center shrink-0">
-                <div class="flex items-center justify-center gap-2 text-slate-400 text-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            <!-- Updated: bg-slate-100 to match list, minimized padding to push text to bottom -->
+            <!-- pt-2: small top padding -->
+            <!-- pb-[calc(env(safe-area-inset-bottom)+2px)]: safe area + minimal 2px space -->
+            <div class="bg-slate-100 p-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+2px)] text-center shrink-0">
+                <div class="flex items-center justify-center gap-2 text-slate-400 text-[10px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
                     <span>交通事情により遅れることがあります</span>
                 </div>
             </div>
@@ -245,9 +247,8 @@
             const currentSchedule = direction === 'toStation' ? scheduleToStation : scheduleToMansion;
             
             // 0. Update BODY Background with GRADIENT
-            // Top half = Theme Color (for notch/top bounce)
-            // Bottom half = White/Slate (for home indicator/bottom bounce)
-            document.body.style.background = `linear-gradient(to bottom, ${theme.hex} 0%, ${theme.hex} 50%, #f8fafc 50%, #f8fafc 100%)`;
+            // Top half = Theme Color, Bottom half = Slate-100 (#f1f5f9) to match new footer
+            document.body.style.background = `linear-gradient(to bottom, ${theme.hex} 0%, ${theme.hex} 50%, #f1f5f9 50%, #f1f5f9 100%)`;
 
             // 1. Update Meta Theme Color (For browser UI)
             document.getElementById('meta-theme-color').setAttribute('content', theme.hex);

@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <!-- Updated Viewport for iPhone: viewport-fit=cover fills the notch area -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- iOS Standalone Mode Settings -->
@@ -10,9 +9,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Shuttle">
 
-    <!-- App Icon: Linked to local file 'icon.jpg' -->
-    <link rel="apple-touch-icon" href="icon.jpg">
-    <link rel="icon" href="icon.jpg" type="image/jpeg">
+    <!-- Theme Color Meta Tag (Dynamic Notch Color) -->
+    <meta id="meta-theme-color" name="theme-color" content="#2563eb">
+
+    <!-- App Icon: Changed back to .png -->
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" href="icon.png" type="image/png">
     
     <title>Smart Shuttle Schedule</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,12 +30,10 @@
             transition-duration: 300ms;
         }
 
-        /* Prevent rubber-banding on the body, allow it only in the scroll area */
         body { overscroll-behavior-y: none; }
         #schedule-list { overscroll-behavior-y: contain; }
     </style>
 </head>
-<!-- Body: h-[100dvh] ensures full height on mobile browsers. -->
 <body class="h-[100dvh] w-full bg-slate-100 font-sans text-slate-800 overflow-hidden">
 
     <!-- App Container -->
@@ -41,9 +41,9 @@
         
         <!-- Header Section -->
         <div id="header-bg" class="bg-blue-600 px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] text-white text-center relative transition-colors-fast shrink-0 z-10">
-            <!-- Shirotan Bus Icon (Top Right) -->
+            <!-- Shirotan Bus Icon (Top Right) - Updated to icon.png -->
             <div class="absolute top-[calc(1rem+env(safe-area-inset-top))] right-4">
-                <img src="icon.jpg" alt="Bus Logo" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white">
+                <img src="icon.png" alt="Bus Logo" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white">
             </div>
 
             <h1 class="text-xl font-bold mb-1 pt-2">シャトルバス時刻表</h1>
@@ -140,6 +140,7 @@
 
         const themes = {
             toStation: {
+                hex: '#2563eb', // Blue-600
                 main: 'bg-blue-600',
                 light: 'bg-blue-50',
                 border: 'border-blue-100',
@@ -152,6 +153,7 @@
                 nextHighlight: 'bg-blue-600'
             },
             toMansion: {
+                hex: '#ec4899', // Pink-500
                 main: 'bg-pink-500',
                 light: 'bg-pink-50',
                 border: 'border-pink-100',
@@ -238,6 +240,9 @@
             const theme = themes[direction];
             const currentSchedule = direction === 'toStation' ? scheduleToStation : scheduleToMansion;
             
+            // 0. Update Meta Theme Color (Notch/Status Bar)
+            document.getElementById('meta-theme-color').setAttribute('content', theme.hex);
+
             // 1. Update Header Theme
             const header = document.getElementById('header-bg');
             header.className = `${theme.main} px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] text-white text-center relative transition-colors-fast shrink-0 z-10`;

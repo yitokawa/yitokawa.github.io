@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="しろたんバス">
-<meta name="theme-color" content="#eaf4fb">
+<meta name="theme-color" content="#dceef8">
 <meta name="description" content="しろたんシャトルバス時刻表アプリ">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
@@ -56,7 +56,7 @@ body{
 
 /* === CLOUDS BG === */
 .clouds{
-    position:fixed;top:0;left:0;right:0;height:260px;
+    position:fixed;top:0;left:0;right:0;height:calc(260px + var(--safe-t));
     pointer-events:none;z-index:0;overflow:hidden;
     background:linear-gradient(180deg,#dceef8 0%,var(--bg) 100%);
 }
@@ -72,10 +72,10 @@ body{
 .shell{
     position:relative;z-index:1;
     max-width:420px;margin:0 auto;
-    padding:calc(var(--safe-t)+16px) 16px calc(var(--safe-b)+24px);
+    padding:calc(var(--safe-t)+20px) 16px calc(var(--safe-b)+24px);
 }
 @media(display-mode:standalone){
-    .shell{padding-top:calc(var(--safe-t)+12px)}
+    .shell{padding-top:calc(var(--safe-t)+24px)}
 }
 
 /* === HEADER === */
@@ -258,16 +258,21 @@ body{
 
 /* === FLOATING === */
 .fab{
-    position:fixed;top:calc(var(--safe-t)+8px);left:50%;
+    position:fixed;top:calc(var(--safe-t)+18px);left:50%;
     transform:translateX(-50%) translateY(-28px);
     opacity:0;z-index:100;pointer-events:none;
-    padding:7px 16px;
+    padding:7px 16px;max-width:calc(100% - 32px);
     background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
     border-radius:99px;box-shadow:0 4px 20px rgba(74,55,40,.1);
     display:flex;align-items:center;gap:8px;
     transition:all .3s var(--ease);
 }
 .fab.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@supports(top:env(safe-area-inset-top)){
+    @media(display-mode:standalone){
+        .fab{top:calc(var(--safe-t)+18px)}
+    }
+}
 .fab-dir{font-size:9px;font-weight:800;color:var(--text3);padding-right:8px;border-right:1px solid rgba(74,55,40,.08)}
 .fab-time{font-size:15px;font-weight:900;color:var(--accent);letter-spacing:-.02em}
 .fab-mins{font-size:11px;font-weight:700;color:var(--text2)}
@@ -281,7 +286,7 @@ body{
     display:flex;align-items:center;justify-content:center;
     transition:top .2s,opacity .2s;opacity:0;pointer-events:none;
 }
-.ptr.show{opacity:1;top:calc(var(--safe-t)+12px)}
+.ptr.show{opacity:1;top:calc(var(--safe-t)+20px)}
 .ptr.spin svg{animation:spin .5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 

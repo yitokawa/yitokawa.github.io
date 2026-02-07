@@ -4,8 +4,8 @@
   "description": "シャトルバス時刻表アプリ",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#eaf4fb",
-  "theme_color": "#eaf4fb",
+  "background_color": "#f2f2f7",
+  "theme_color": "#7ec8e3",
   "icons": [
     {
       "src": "icon.png",

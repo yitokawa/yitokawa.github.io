@@ -16,6 +16,7 @@
 <link rel="manifest" href="manifest.json">
 
 <title>Shuttle</title>
+<meta name="description" content="シャトルバスの時刻表・リアルタイム発車案内アプリ">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -354,16 +355,20 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        transition: color 0.3s;
+        transition: color 0.3s, transform 0.1s;
     }
-    
+
+    .toggle-btn:active {
+        transform: scale(0.97);
+    }
+
     .toggle-btn.active { color: white; }
-    
+
     .toggle-btn svg {
         width: 18px;
         height: 18px;
     }
-    
+
     /* Schedule */
     .schedule {
         background: rgba(255,255,255,0.03);
@@ -463,12 +468,31 @@
         opacity: 0.2;
     }
     
-    /* SVG Gradients */
-    .svg-defs {
-        position: absolute;
-        width: 0;
-        height: 0;
+    /* Clock */
+    .clock {
+        font-size: 13px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        opacity: 0.4;
+        margin-right: 12px;
     }
+
+    /* Departing Now pill */
+    .min.now {
+        opacity: 1;
+        color: white;
+        font-weight: 700;
+        animation: pulse-now 1.5s ease-in-out infinite;
+    }
+
+    .app.station .min.now { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+    .app.mansion .min.now { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+
+    @keyframes pulse-now {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
 </style>
 
 
@@ -481,53 +505,55 @@
             <div class="bg-noise"></div>
         </div>
 
-
-    <!-- Floating Next Bus Indicator -->
-    <div class="floating" id="floating">
-        <span class="floating-time" id="floatingTime">--:--</span>
-        <span class="floating-mins" id="floatingMins">--分</span>
-    </div>
-    
-    <!-- Content -->
-    <div class="content">
-        <header class="header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <img src="icon.png" alt="Shuttle" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><rect width=\'16\' height=\'16\' x=\'4\' y=\'3\' rx=\'2\'/><path d=\'M4 11h16M12 3v8\'/></svg>'">
-                </div>
-                <span class="logo-text">Shuttle</span>
-            </div>
-            <div class="status" id="status">
-                <div class="status-dot"></div>
-                <span id="statusText">運行中</span>
-            </div>
-        </header>
-        
-        <main class="hero" id="hero">
-            <div id="heroContent"></div>
-        </main>
-        
-        <div class="toggle">
-            <div class="toggle-bg"></div>
-            <button class="toggle-btn active" id="btnStation" onclick="setDir('station')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16M12 3v8M8 19l-2 3M18 22l-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
-                辻堂駅
-            </button>
-            <button class="toggle-btn" id="btnMansion" onclick="setDir('mansion')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                マンション
-            </button>
+        <!-- Floating Next Bus Indicator -->
+        <div class="floating" id="floating">
+            <span class="floating-time" id="floatingTime">--:--</span>
+            <span class="floating-mins" id="floatingMins">--分</span>
         </div>
-        
-        <section class="schedule">
-            <div class="schedule-header">
-                <h2>時刻表</h2>
-                <span>平日のみ</span>
+
+        <!-- Content -->
+        <div class="content">
+            <header class="header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <img src="icon.png" alt="Shuttle" onerror="this.parentElement.innerHTML='<svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><rect width=\'16\' height=\'16\' x=\'4\' y=\'3\' rx=\'2\'/><path d=\'M4 11h16M12 3v8\'/></svg>'">
+                    </div>
+                    <span class="logo-text">Shuttle</span>
+                </div>
+                <div style="display:flex;align-items:center;">
+                    <span class="clock" id="clock"></span>
+                    <div class="status" id="status">
+                        <div class="status-dot"></div>
+                        <span id="statusText">運行中</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="hero" id="hero">
+                <div id="heroContent"></div>
+            </main>
+
+            <div class="toggle">
+                <div class="toggle-bg"></div>
+                <button class="toggle-btn active" id="btnStation" onclick="setDir('station')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16M12 3v8M8 19l-2 3M18 22l-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>
+                    辻堂駅
+                </button>
+                <button class="toggle-btn" id="btnMansion" onclick="setDir('mansion')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    マンション
+                </button>
             </div>
-            <div id="scheduleList"></div>
-        </section>
+
+            <section class="schedule">
+                <div class="schedule-header">
+                    <h2>時刻表</h2>
+                    <span>平日のみ</span>
+                </div>
+                <div id="scheduleList"></div>
+            </section>
+        </div>
     </div>
-</div>
 
 <script>
     const DATA = {
@@ -544,60 +570,128 @@
             19: [5,20,35,50], 20: [5,25,45], 21: [5,25,45], 22: [5]
         }
     };
-    
+
+    // Japanese national holidays (fixed dates + calculated dates)
+    function getJapaneseHolidays(year) {
+        const holidays = new Set();
+        const add = (m, d) => holidays.add(`${year}-${m}-${d}`);
+
+        // Fixed-date holidays
+        add(1, 1);   // 元日
+        add(2, 11);  // 建国記念の日
+        add(2, 23);  // 天皇誕生日
+        add(4, 29);  // 昭和の日
+        add(5, 3);   // 憲法記念日
+        add(5, 4);   // みどりの日
+        add(5, 5);   // こどもの日
+        add(8, 11);  // 山の日
+        add(11, 3);  // 文化の日
+        add(11, 23); // 勤労感謝の日
+
+        // Happy Monday holidays
+        const nthMonday = (month, n) => {
+            const first = new Date(year, month - 1, 1);
+            const day = first.getDay();
+            const firstMon = day <= 1 ? 1 + (1 - day) : 1 + (8 - day);
+            return firstMon + (n - 1) * 7;
+        };
+        add(1, nthMonday(1, 2));   // 成人の日 (2nd Monday Jan)
+        add(7, nthMonday(7, 3));   // 海の日 (3rd Monday Jul)
+        add(9, nthMonday(9, 3));   // 敬老の日 (3rd Monday Sep)
+        add(10, nthMonday(10, 2)); // スポーツの日 (2nd Monday Oct)
+
+        // Equinox days (approximate formula)
+        const vernalEquinox = Math.floor(20.8431 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+        const autumnalEquinox = Math.floor(23.2488 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
+        add(3, vernalEquinox);  // 春分の日
+        add(9, autumnalEquinox); // 秋分の日
+
+        // Substitute holidays (振替休日): if a holiday falls on Sunday, Monday is a holiday
+        for (const h of [...holidays]) {
+            const [, m, d] = h.split('-').map(Number);
+            const date = new Date(year, m - 1, d);
+            if (date.getDay() === 0) {
+                add(m, d + 1);
+            }
+        }
+
+        return holidays;
+    }
+
+    let holidayCache = {};
+    function isHoliday(date) {
+        const y = date.getFullYear();
+        if (!holidayCache[y]) holidayCache[y] = getJapaneseHolidays(y);
+        return holidayCache[y].has(`${y}-${date.getMonth() + 1}-${date.getDate()}`);
+    }
+
+    function isNonServiceDay(date) {
+        return date.getDay() === 0 || date.getDay() === 6 || isHoliday(date);
+    }
+
     let dir = 'station';
     let now = new Date();
     let nextBusData = null;
-    
+
     const $ = id => document.getElementById(id);
     const pad = n => String(n).padStart(2, '0');
-    const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
-    
+
     function getNextBuses(count = 4) {
         const schedule = DATA[dir];
         const h = now.getHours(), m = now.getMinutes();
         const buses = [];
-        
+
         for (let hour = h; hour <= 22 && buses.length < count; hour++) {
             for (const min of (schedule[hour] || [])) {
-                if (hour === h && min <= m) continue;
-                buses.push({ hour, min });
+                if (hour === h && min < m) continue;
+                if (hour === h && min === m) {
+                    buses.push({ hour, min, now: true });
+                } else {
+                    buses.push({ hour, min });
+                }
                 if (buses.length >= count) break;
             }
         }
-        
+
         for (let hour = 6; hour <= 22 && buses.length < count; hour++) {
             for (const min of (schedule[hour] || [])) {
                 buses.push({ hour, min, tomorrow: true });
                 if (buses.length >= count) break;
             }
         }
-        
+
         return buses;
     }
-    
+
     function getMinsUntil(bus) {
+        if (bus.now) return 0;
         const target = new Date(now);
         target.setHours(bus.hour, bus.min, 0, 0);
         if (bus.tomorrow) target.setDate(target.getDate() + 1);
         return Math.max(0, Math.floor((target - now) / 60000));
     }
-    
+
     function setDir(d) {
         dir = d;
         $('app').className = `app ${d}`;
         $('btnStation').className = `toggle-btn ${d === 'station' ? 'active' : ''}`;
         $('btnMansion').className = `toggle-btn ${d === 'mansion' ? 'active' : ''}`;
+        // Haptic feedback
+        if (navigator.vibrate) navigator.vibrate(10);
         render();
     }
-    
-    function renderHero() {
-        const weekend = isWeekend(now);
-        
-        $('status').className = `status ${weekend ? 'weekend' : ''}`;
-        $('statusText').textContent = weekend ? '運休日' : '運行中';
-        
-        if (weekend) {
+
+    function updateClock() {
+        $('clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    }
+
+    function renderHero(buses) {
+        const noService = isNonServiceDay(now);
+
+        $('status').className = `status ${noService ? 'weekend' : ''}`;
+        $('statusText').textContent = noService ? '運休日' : '運行中';
+
+        if (noService) {
             nextBusData = null;
             $('heroContent').innerHTML = `
                 <div class="no-service">
@@ -610,9 +704,7 @@
                 </div>`;
             return;
         }
-        
-        const buses = getNextBuses();
-        
+
         if (!buses.length) {
             nextBusData = null;
             $('heroContent').innerHTML = `
@@ -626,22 +718,22 @@
                 </div>`;
             return;
         }
-        
+
         const next = buses[0];
         const mins = getMinsUntil(next);
         const upcoming = buses.slice(1, 4);
         const progress = Math.max(0, 100 - (mins / 60 * 100));
-        
+
         nextBusData = { time: `${pad(next.hour)}:${pad(next.min)}`, mins };
-        
+
         let html = `
-            <div class="hero-label">次のバス${next.tomorrow ? ' (明日)' : ''}</div>
+            <div class="hero-label">次のバス${next.now ? '' : next.tomorrow ? ' (明日)' : ''}</div>
             <div class="hero-time">${pad(next.hour)}:${pad(next.min)}</div>
-            <div class="hero-countdown">あと<span> ${mins} </span>分</div>
+            <div class="hero-countdown">${next.now ? '<span>まもなく発車</span>' : `あと<span> ${mins} </span>分`}</div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress}%"></div>
+                <div class="progress-fill" style="width: ${next.now ? 100 : progress}%"></div>
             </div>`;
-        
+
         if (upcoming.length) {
             html += `<div class="upcoming">`;
             for (const bus of upcoming) {
@@ -654,85 +746,105 @@
             }
             html += `</div>`;
         }
-        
+
         $('heroContent').innerHTML = html;
-        
+
         // Update floating indicator
         $('floatingTime').textContent = nextBusData.time;
-        $('floatingMins').textContent = `${nextBusData.mins}分`;
+        $('floatingMins').textContent = next.now ? 'まもなく' : `${nextBusData.mins}分`;
     }
-    
-    function renderSchedule() {
+
+    function renderSchedule(buses) {
         const schedule = DATA[dir];
         const h = now.getHours(), m = now.getMinutes();
-        const nextBus = getNextBuses(1)[0];
-        
+        const nextBus = buses.length ? buses[0] : null;
+
         let html = '';
         for (let hour = 6; hour <= 22; hour++) {
             const mins = schedule[hour] || [];
             if (!mins.length && (hour < 10 || hour > 20)) continue;
-            
+
             const isPast = hour < h;
             const isCurrent = hour === h;
             let cls = 'schedule-row';
             if (isPast) cls += ' past';
             if (isCurrent) cls += ' current';
-            
+
             html += `<div class="${cls}" id="row${hour}">
                 <div class="hour">${hour}<small>時</small></div>
                 <div class="mins">`;
-            
+
             if (!mins.length) {
                 html += `<span class="no-run">—</span>`;
             } else {
                 for (const min of mins) {
-                    const passed = isCurrent && min <= m;
-                    const isNext = nextBus && nextBus.hour === hour && nextBus.min === min && !nextBus.tomorrow;
+                    const passed = isPast || (isCurrent && min < m);
+                    const isNow = isCurrent && min === m;
+                    const isNext = nextBus && nextBus.hour === hour && nextBus.min === min && !nextBus.tomorrow && !isNow;
                     let mcls = 'min';
                     if (passed) mcls += ' passed';
+                    if (isNow) mcls += ' now';
                     if (isNext) mcls += ' next';
                     html += `<span class="${mcls}">${pad(min)}</span>`;
                 }
             }
-            
+
             html += `</div></div>`;
         }
-        
+
         $('scheduleList').innerHTML = html;
     }
-    
-    function render() {
-        renderHero();
-        renderSchedule();
+
+    function scrollToCurrentHour() {
+        const h = now.getHours();
+        const row = $(`row${h}`) || $(`row${h + 1}`);
+        if (row) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
-    
+
+    function render() {
+        updateClock();
+        const buses = getNextBuses();
+        renderHero(buses);
+        renderSchedule(buses);
+    }
+
     // Scroll detection for floating indicator
     const heroEl = $('hero');
     const floatingEl = $('floating');
-    
+
     function checkScroll() {
         if (!nextBusData) {
             floatingEl.classList.remove('show');
             return;
         }
-        
+
         const heroRect = heroEl.getBoundingClientRect();
         const heroBottom = heroRect.bottom;
-        
+
         if (heroBottom < 100) {
             floatingEl.classList.add('show');
         } else {
             floatingEl.classList.remove('show');
         }
     }
-    
+
     window.addEventListener('scroll', checkScroll, { passive: true });
-    
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
     render();
-    
+    // Auto-scroll to current hour on first load
+    setTimeout(scrollToCurrentHour, 300);
+
     setInterval(() => {
         const prev = now.getMinutes();
         now = new Date();
+        updateClock();
         if (now.getMinutes() !== prev) render();
     }, 1000);
 </script>
